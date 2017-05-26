@@ -5,6 +5,7 @@
 import tweepy
 import AuthKey
 import Timestamp
+import RuleFiltter
 
 # 各種キーをセット
 consumerKey =AuthKey.getConsumerKey()
@@ -26,12 +27,10 @@ readApi = tweepy.API(collectAuth)
 tweetApi = tweepy.API(tweetAuth)
 oldDatetime=Timestamp.readTime(".timestamp")
 
-for tweet in readApi.user_timeline(readApi.me().id,count=10):
+for tweet in readApi.user_timeline(readApi.me().id,count=10)[::-1]:
     if(tweet.created_at < oldDatetime):
-        break;
-    if(tweet.in_reply_to_user_id is not None):#リプライのツイートなら
         continue
-    if(tweet.retweeted): #RTなら
+    if(RuleFiltter.isRule(tweet) == False):
         continue
     print tweet.text
     tweetApi.update_status(status=tweet.text)  
